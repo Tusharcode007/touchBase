@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+coverage/
+*.tsbuildinfo
+
+# Secrets — never commit these
+.env
+.env.*
+!.env.example
+*.pem
+credentials*.json
+token*.json
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+*.log

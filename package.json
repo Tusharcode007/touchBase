@@ -1,0 +1,34 @@
+{
+  "name": "touchbase",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Puts one short call with someone you care about into the free time in your Google Calendar, every day.",
+  "license": "MIT",
+  "author": "Tusharcode007",
+  "type": "module",
+  "workspaces": [
+    "server",
+    "web"
+  ],
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build": "npm run build -w web && npm run build -w server",
+    "start": "node server/dist/index.js",
+    "test": "npm run test -w server && npm run test -w web",
+    "lint": "eslint .",
+    "typecheck": "tsc -p server --noEmit && tsc -p web --noEmit",
+    "check": "npm run lint && npm run typecheck && npm test"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "26.6.6",
+    "eslint": "10.14.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "globals": "17.14.0",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.2"
+  }
+}
