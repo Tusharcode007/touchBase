@@ -110,3 +110,38 @@ Chosen: express-rate-limit with its built-in memory store. 30 login attempts per
 Why: One small server, no extra service to run.
 Trade-off: Counters reset on restart and aren't shared across servers.
 Revisit if: we run more than one server instance.
+
+## D-014: An hourly GitHub Actions tick instead of a cron job inside the server
+Date: 2026-11-12
+Context: Free Render servers sleep when idle, so a timer inside the server would not fire.
+Options: 1) node-cron inside the server 2) a paid always-on server 3) an outside scheduler that calls a protected endpoint every hour (GitHub Actions or cron-job.org)
+Chosen: 3, with GitHub Actions
+Why: Free, already where the code lives, and the request also wakes the server. Ticking hourly (not once at 11:00) gives the conflict check a chance to run later in the day, and the server itself decides whether it's time for the morning plan.
+Trade-off: Depends on GitHub. Schedules can be late, and they stop after 60 days without commits in a public repo (see FAILURE.md).
+Revisit if: the app moves to an always-on server.
+
+## D-015: Save the call before creating the calendar event
+Date: 2026-11-12
+Context: If the server crashes between "create event" and "save to database", we could end up with an event we don't know about, and then create another.
+Chosen: Save the call first (no eventId yet), then create the event tagged with the call's id, then save the eventId. On the next tick, a call with no eventId is matched to its event by tag, or deleted.
+Why: The daily limit is counted from saved calls, so it can never be broken by a crash.
+
+## D-016: AI talking points are optional, with a built-in fallback
+Date: 2026-11-12
+Context: Not everyone has an API key, and APIs fail.
+Chosen: Claude (claude-opus-5-5, low effort, structured output, server-side fallback model) when a key is set and AI is allowed for that person, otherwise a built-in list. Any error falls back to the list.
+Why: The daily call is the product. The talking points are a bonus that must never block it.
+Trade-off: Built-in points are generic.
+
+## D-017: Demo mode with a fake calendar and an in-memory database
+Date: 2026-11-12
+Context: Trying the app should not need Google Cloud, Atlas and Render set up first.
+Chosen: `DEMO_MODE=true` → fake calendar with a student timetable, sample people, temporary database, one-click demo login. The server refuses to start this way in production.
+Trade-off: Extra code paths, guarded by a startup check and tests.
+
+## D-018: Read busy time with events.list, asking for only the fields we need
+Date: 2026-11-12
+Context: We need busy times without collecting private event details.
+Options: 1) freeBusy API 2) events.list with a `fields` filter
+Chosen: 2
+Why: freeBusy can't tell touchbase's own calls apart from real meetings, so the conflict check couldn't work. With `fields`, Google sends only times, status, free/busy flag, my RSVP and our tag. No titles or guests are downloaded.

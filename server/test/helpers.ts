@@ -8,6 +8,8 @@ import type { GoogleIdentity, OAuthService } from "../src/auth/oauth.js";
 import { createCipher } from "../src/lib/crypto.js";
 import { createLogger } from "../src/lib/logger.js";
 import type { AppContext } from "../src/context.js";
+import { createFakeCalendar, type FakeCalendar } from "../src/calendar/fake.js";
+import { offlineService, type TopicService } from "../src/ai/talkingPoints.js";
 
 export const OWNER = "owner@example.com";
 export const SECOND = "second@example.com";
@@ -79,13 +81,30 @@ export async function clearDb() {
   await Promise.all(collections.map((c) => c.deleteMany({})));
 }
 
-export function makeContext(env: Env, clock: { now: number }): AppContext & { oauth: ReturnType<typeof fakeOAuth> } {
+export type TestContext = AppContext & {
+  oauth: ReturnType<typeof fakeOAuth>;
+  /** The fake calendar each user gets (created on first use). */
+  calendars: Map<string, FakeCalendar>;
+};
+
+export function makeContext(env: Env, clock: { now: number }, topics: TopicService = offlineService()): TestContext {
+  const calendars = new Map<string, FakeCalendar>();
   return {
     env,
     oauth: fakeOAuth(),
     cipher: createCipher(env.tokenEncryptionKey),
     logger: createLogger("silent"),
     now: () => clock.now,
+    calendars,
+    calendarFor: (user) => {
+      let cal = calendars.get(user.id);
+      if (!cal) {
+        cal = createFakeCalendar({ timetable: false });
+        calendars.set(user.id, cal);
+      }
+      return cal;
+    },
+    topics,
   };
 }
 

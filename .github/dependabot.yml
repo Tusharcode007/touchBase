@@ -9,6 +9,10 @@ updates:
     groups:
       dev-tools:
         dependency-type: development
+    ignore:
+      # typescript-eslint supports TypeScript below 6.1 only. Remove this when it supports 7.
+      - dependency-name: typescript
+        versions: [">=6.1.0"]
   - package-ecosystem: github-actions
     directory: /
     schedule:

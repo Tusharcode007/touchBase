@@ -2,6 +2,28 @@
 
 Newest entry on top. Read this first, update it last.
 
+## 2026-11-12: Calendar sync and the daily job
+Done:
+- Calendar provider interface with a real Google version and a fake one (demo + tests).
+- Daily job (`jobs/daily.ts`): lock → settle → guards → sync → morning plan or conflict check → apply.
+- `/api/internal/tick` + `.github/workflows/tick.yml` (hourly), `/api/today`, "Run now", pause (with "remove today's call"), delete account.
+- Optional AI talking points with a built-in fallback. Demo mode with sample people.
+- 104 server tests pass. Demo mode checked end to end with curl.
+- Docs: ARCHITECTURE, FLOW, DATA, FAILURE, ASSUMPTIONS, D-014 to D-018, FEATURE-003.
+
+In progress:
+- Nothing.
+
+Broken or risky:
+- The Google provider has not been tried against a real account yet (ASSUMPTIONS A1, A2).
+- Dependabot's first npm run failed. Added an ignore rule for TypeScript ≥ 6.1 (probable cause, not confirmed: the log needs a login).
+
+Next:
+- The React dashboard: Today, People, Haven't called, History, Settings, and its tests.
+
+Do not touch:
+- The order "save call → create event → save eventId" in `applyActions` (D-015).
+
 ## 2026-11-12: Secure server
 Done:
 - Server: startup checks, AES-256-GCM encryption, server-side sessions (12 h idle / 7 day absolute), CSRF (Origin + token), helmet CSP/HSTS, rate limits, safe logging, Google sign-in with state + PKCE + allow list.

@@ -8,6 +8,12 @@ import { connectDb } from "./db/connect.js";
 import { googleOAuth } from "./auth/oauth.js";
 import { createApp } from "./app.js";
 import type { AppContext } from "./context.js";
+import { CalendarAuthError } from "./calendar/provider.js";
+import { googleCalendarProvider } from "./calendar/google.js";
+import { createTopicService } from "./ai/talkingPoints.js";
+import { internalRoutes } from "./routes/internal.js";
+import { todayRoutes } from "./routes/today.js";
+import { demoCalendars, demoRoutes } from "./demo/demo.js";
 
 // Local development reads the .env file at the repo root. Production (Render) sets real env vars.
 const envFile = fileURLToPath(new URL("../../.env", import.meta.url));
@@ -17,18 +23,31 @@ async function main() {
   const env = loadEnv();
   const logger = createLogger(env.logLevel);
   const db = await connectDb(env, logger);
+  const cipher = createCipher(env.tokenEncryptionKey);
+  const oauth = googleOAuth(env);
+  const fakeCalendarFor = env.demoMode ? demoCalendars() : null;
 
   const ctx: AppContext = {
     env,
-    oauth: googleOAuth(env),
-    cipher: createCipher(env.tokenEncryptionKey),
+    oauth,
+    cipher,
     logger,
     now: () => Date.now(),
+    calendarFor: (user) => {
+      if (fakeCalendarFor) return fakeCalendarFor(user.id);
+      if (!user.refreshTokenEnc) throw new CalendarAuthError("No Google access saved");
+      return googleCalendarProvider(oauth.clientFor(cipher.decrypt(user.refreshTokenEnc)));
+    },
+    topics: createTopicService(env.anthropicApiKey, logger),
   };
 
-  const app = createApp(ctx);
+  const app = createApp(ctx, {
+    internal: internalRoutes(ctx),
+    auth: env.demoMode ? demoRoutes(ctx) : undefined,
+    api: [todayRoutes(ctx)],
+  });
   const server = app.listen(env.port, () => {
-    logger.info({ port: env.port, demo: env.demoMode }, "touchbase is running");
+    logger.info({ port: env.port, demo: env.demoMode, ai: env.anthropicApiKey !== null }, "touchbase is running");
   });
 
   const shutdown = () => {
