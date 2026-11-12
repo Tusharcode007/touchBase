@@ -11,7 +11,7 @@
     "web"
   ],
   "engines": {
-    "node": ">=20.19"
+    "node": ">=22.22"
   },
   "scripts": {
     "dev": "node scripts/dev.mjs",
@@ -20,7 +20,8 @@
     "test": "npm run test -w server && npm run test -w web",
     "lint": "eslint .",
     "typecheck": "tsc -p server --noEmit && tsc -p web --noEmit",
-    "check": "npm run lint && npm run typecheck && npm test"
+    "check": "npm run lint && npm run typecheck && npm test",
+    "secrets": "node scripts/generate-secrets.mjs"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

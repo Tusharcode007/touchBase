@@ -99,7 +99,7 @@ export function freeTimeToday(input: PlanInput, extraBooked: Interval[] = [], ig
 }
 
 /** How "overdue" someone is: days since last call ÷ how often I want to call them. */
-export function overdueScore(p: PlannerPerson, now: number): number {
+export function overdueScore(p: Pick<PlannerPerson, "lastDoneAt" | "everyDays">, now: number): number {
   if (p.lastDoneAt === null) return Number.POSITIVE_INFINITY;
   return (now - p.lastDoneAt) / DAY_MS / p.everyDays;
 }

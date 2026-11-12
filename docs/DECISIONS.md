@@ -68,3 +68,45 @@ Options: 1) Twilio SMS 2) WhatsApp Business API 3) one-tap links that I send fro
 Chosen: 3
 Why: Twilio numbers look like spam to my parents, India needs DLT registration for app SMS, and WhatsApp Business needs business verification. A message from my own number is personal, and it is free.
 Trade-off: I still have to tap once.
+
+## D-009: MongoDB with Mongoose
+Date: 2026-11-12
+Context: Need to store people, settings, call history and sessions. Free hosting matters.
+Options: 1) PostgreSQL (Neon/Supabase free tier) 2) MongoDB Atlas M0 3) SQLite file
+Chosen: 2
+Why: Fits my MERN skills, has a free tier, and the data is small and document-shaped (a user with a settings object, people, calls). SQLite would be lost on Render's free tier because its disk is wiped on every deploy.
+Trade-off: Fewer database-level guarantees than Postgres (no foreign keys). We enforce ownership in code instead (every query has `userId`).
+Revisit if: we need complex reports or many users.
+
+## D-010: Server-side sessions, not JWT in the browser
+Date: 2026-11-12
+Context: How to keep the user signed in.
+Options: 1) JWT in localStorage 2) JWT in a cookie 3) random session ID cookie + session data in MongoDB
+Chosen: 3
+Why: localStorage can be read by any injected script. A server-side session can be ended at any moment (logout, delete account), and the cookie holds nothing useful by itself.
+Trade-off: One database read per request. Fine for one user.
+
+## D-011: CSRF = Origin check + secret token
+Date: 2026-11-12
+Context: Cookie-based login needs CSRF protection.
+Options: 1) SameSite cookie only 2) Origin check only 3) token in session, sent in a header, plus the Origin check
+Chosen: 3 (on top of SameSite=Lax)
+Why: Layers. SameSite has browser edge cases, some requests have no Origin header, and the token covers both.
+Trade-off: The React app must fetch the token from `/api/auth/me` first.
+
+## D-012: Narrowest Google scopes
+Date: 2026-11-12
+Context: Calendar access is sensitive.
+Options: 1) `calendar` (full access) 2) `calendar.events` (edit events on ALL calendars) 3) `calendar.events.owned` + `calendar.events.readonly` + `calendar.calendarlist.readonly`
+Chosen: 3
+Why: touchbase can only create/change events on calendars I own, can read times to find busy slots, and can list calendars for the settings page. It can't delete calendars, change sharing, or edit events in calendars shared with me.
+Trade-off: Three scopes to explain on the consent screen instead of one.
+Revisit if: we switch to free/busy-only reading (`calendar.freebusy`), which would be even narrower but can't tell touchbase's own events apart from real meetings.
+
+## D-013: Rate limits in memory
+Date: 2026-11-12
+Context: Need basic protection against brute force and floods.
+Chosen: express-rate-limit with its built-in memory store. 30 login attempts per 15 min per IP, 900 API requests per 15 min, 60 tick calls per hour.
+Why: One small server, no extra service to run.
+Trade-off: Counters reset on restart and aren't shared across servers.
+Revisit if: we run more than one server instance.
