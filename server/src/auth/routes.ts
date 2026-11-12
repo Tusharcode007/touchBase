@@ -16,6 +16,7 @@ import { pkceChallenge, randomToken, safeEqual } from "../lib/crypto.js";
 import { dayInfo } from "../core/day.js";
 import { HttpError } from "../lib/errors.js";
 import { destroy, regenerate, save, SESSION_COOKIE } from "./session.js";
+import { isAllowed } from "./guards.js";
 
 const STATE_MAX_AGE_MS = 10 * 60 * 1000;
 
@@ -105,7 +106,7 @@ export function authRoutes(ctx: AppContext): Router {
       return;
     }
     const user = await User.findById(req.session.userId);
-    if (!user) {
+    if (!user || !isAllowed(user, ctx.env.allowedEmails, ctx.env.demoMode)) {
       await destroy(req);
       res.status(401).json({ error: "Please sign in." });
       return;

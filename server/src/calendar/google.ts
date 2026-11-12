@@ -81,6 +81,17 @@ function eventBody(event: NewEvent): calendar_v3.Schema$Event {
 export function googleCalendarProvider(auth: OAuth2Client): CalendarProvider {
   const api = googleCalendar({ version: "v3", auth });
 
+  async function isOwnEvent(calendarId: string, eventId: string): Promise<boolean> {
+    try {
+      const res = await api.events.get({ calendarId, eventId, fields: "status,extendedProperties/private" });
+      return res.data.status !== "cancelled" && res.data.extendedProperties?.private?.[TAG_KEY] === TAG_VALUE;
+    } catch (err) {
+      const status = statusOf(err);
+      if (status === 404 || status === 410) return false;
+      rethrow(err);
+    }
+  }
+
   return {
     async listCalendars(): Promise<CalendarInfo[]> {
       try {
@@ -163,6 +174,9 @@ export function googleCalendarProvider(auth: OAuth2Client): CalendarProvider {
     },
 
     async moveEvent(calendarId, eventId, event) {
+      // Rule 4, double-checked: never change an event that doesn't carry our tag,
+      // even if the database says otherwise.
+      if (!(await isOwnEvent(calendarId, eventId))) return;
       try {
         await api.events.patch({ calendarId, eventId, requestBody: eventBody(event) });
       } catch (err) {
@@ -171,6 +185,7 @@ export function googleCalendarProvider(auth: OAuth2Client): CalendarProvider {
     },
 
     async deleteEvent(calendarId, eventId) {
+      if (!(await isOwnEvent(calendarId, eventId))) return; // gone already, or not ours
       try {
         await api.events.delete({ calendarId, eventId });
       } catch (err) {

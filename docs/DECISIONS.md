@@ -145,3 +145,19 @@ Context: We need busy times without collecting private event details.
 Options: 1) freeBusy API 2) events.list with a `fields` filter
 Chosen: 2
 Why: freeBusy can't tell touchbase's own calls apart from real meetings, so the conflict check couldn't work. With `fields`, Google sends only times, status, free/busy flag, my RSVP and our tag. No titles or guests are downloaded.
+
+## D-019: No router or UI component library in the dashboard
+Date: 2026-11-12
+Context: Five screens, used mostly on a phone.
+Options: 1) React Router + a UI kit (MUI, Chakra) 2) plain React with hash links and one CSS file
+Chosen: 2
+Why: Fewer dependencies to trust and update, a smaller bundle, and full control over the strict CSP (no inline styles injected by a UI kit).
+Trade-off: Hand-written CSS and a small modal/switch, which took more effort.
+Revisit if: the dashboard grows past ~10 screens.
+
+## D-020: Re-check the allow list on every request
+Date: 2026-11-12
+Context: Security review S-1. Sessions last up to 7 days.
+Chosen: `requireAuth`, `/auth/me` and the hourly job all check `ALLOWED_EMAILS`.
+Why: Removing someone should take effect at once.
+Trade-off: None worth noting (an in-memory array lookup).

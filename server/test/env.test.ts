@@ -40,6 +40,11 @@ describe("startup checks", () => {
     expect(() => loadEnv({ ...good, ALLOWED_EMAILS: " , " })).toThrow(/ALLOWED_EMAILS/);
   });
 
+  it("a public address must run with NODE_ENV=production (Secure cookies, HSTS)", () => {
+    expect(() => loadEnv({ ...good, NODE_ENV: "development" })).toThrow(/NODE_ENV=production/);
+    expect(() => loadEnv({ ...good, NODE_ENV: "development", APP_URL: "http://localhost:5173" })).not.toThrow();
+  });
+
   it("needs https in production", () => {
     expect(() => loadEnv({ ...good, APP_URL: "http://touchbase.example.com" })).toThrow(/https/);
   });

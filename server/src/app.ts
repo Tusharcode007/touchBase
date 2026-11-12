@@ -106,7 +106,7 @@ export function createApp(ctx: AppContext, extra: ExtraRoutes = {}) {
   app.use("/api/auth", authRoutes(ctx));
   if (extra.auth) app.use("/api/auth", extra.auth);
 
-  app.use("/api", requireAuth(ctx.now));
+  app.use("/api", requireAuth(ctx.now, env.allowedEmails, env.demoMode));
   app.use("/api", peopleRoutes(ctx), settingsRoutes(ctx), callRoutes(ctx), ...(extra.api ?? []));
 
   app.use("/api", (_req, res) => {

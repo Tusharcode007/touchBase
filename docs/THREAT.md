@@ -21,8 +21,8 @@ Honest gaps are listed at the end. An admitted gap beats a hidden one.
 - **Tests:** `api.test.ts` → "401 for every data route", "not on the allow list", "rate limiting".
 
 ### 2. Someone with a Google account that is not mine
-- **Could try:** sign in with their own Google account.
-- **Stopped by:** the allow list check runs after Google confirms the email. They are sent back with `?error=not-allowed`, their session is destroyed, and nothing about them is saved.
+- **Could try:** sign in with their own Google account, or keep using a session after being removed from the list.
+- **Stopped by:** the allow list check runs after Google confirms the email. They are sent back with `?error=not-allowed`, their session is destroyed, and nothing about them is saved. The list is checked again on **every request** and in the hourly job, so removing an email takes effect at once (SECURITY-REVIEW S-1).
 
 ### 3. A malicious website I visit while signed in (CSRF)
 - **Could try:** make my browser send `DELETE /api/people/…` or change my settings.
@@ -57,6 +57,10 @@ Honest gaps are listed at the end. An admitted gap beats a hidden one.
 - **Could see:** first name, relation, my notes about the person, notes from the last call.
 - **Never sees:** phone numbers, email, other people's data.
 - **Controls:** AI is optional (no key = off), can be turned off globally and per person. If it fails or refuses, built-in talking points are used and the daily job continues.
+
+### 10b. A tampered database pointing at someone else's event
+- **Could try:** change a call's `eventId` so touchbase moves or deletes one of my real events.
+- **Stopped by:** before moving or deleting, the Google provider checks that the event carries touchbase's private tag (SECURITY-REVIEW S-3).
 
 ### 11. Google (third party)
 - **Has:** calendar access through the scopes I grant. touchbase asks for the narrowest scopes: create/edit only on calendars I own, read events, read my calendar list.

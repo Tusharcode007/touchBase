@@ -107,6 +107,10 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
     if (allowedEmails.length === 0) problems.push("ALLOWED_EMAILS must list at least one email");
   }
   if (isProduction && !r.APP_URL.startsWith("https://")) problems.push("APP_URL must use https in production");
+  // A public address without NODE_ENV=production would silently drop Secure cookies and HSTS.
+  const host = new URL(r.APP_URL).hostname;
+  const isLocal = host === "localhost" || host === "127.0.0.1" || host === "[::1]" || host.endsWith(".localhost");
+  if (!isLocal && !isProduction) problems.push("Set NODE_ENV=production when APP_URL is a public address");
 
   if (problems.length > 0) throw new EnvError(`Cannot start touchbase:\n - ${problems.join("\n - ")}`);
 

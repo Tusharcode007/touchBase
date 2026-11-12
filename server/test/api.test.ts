@@ -10,6 +10,7 @@ import { APP_URL, clearDb, makeContext, OWNER, signIn, startDb, testEnv, validPe
 let db: TestDb;
 const clock = { now: Date.parse("2026-11-16T05:30:00Z") };
 let app: ReturnType<typeof createApp>;
+let ctx: ReturnType<typeof makeContext>;
 
 beforeAll(async () => {
   db = await startDb();
@@ -21,7 +22,8 @@ beforeEach(async () => {
   clock.now = Date.parse("2026-11-16T05:30:00Z");
   await clearDb();
   // A fresh app per test also resets the rate-limit counters.
-  app = createApp(makeContext(testEnv(db.uri), clock));
+  ctx = makeContext(testEnv(db.uri), clock);
+  app = createApp(ctx);
 });
 
 describe("security headers", () => {
@@ -91,6 +93,16 @@ describe("sign in", () => {
     await agent.get(`/api/auth/google/callback?code=owner&state=${state}`).expect(302);
     const again = await agent.get(`/api/auth/google/callback?code=owner&state=${state}`).expect(302);
     expect(again.headers.location).toBe(`${APP_URL}/?error=login-failed`);
+  });
+
+  it("removing an email from ALLOWED_EMAILS locks out that person's live session at once", async () => {
+    const agent = request.agent(app);
+    await signIn(agent, "second");
+    await agent.get("/api/people").expect(200);
+    const list = ctx.env.allowedEmails;
+    list.splice(list.indexOf("second@example.com"), 1);
+    await agent.get("/api/people").expect(401);
+    await agent.get("/api/auth/me").expect(401);
   });
 
   it("logs out after 7 days even if used every day (absolute limit)", async () => {

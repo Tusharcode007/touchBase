@@ -10,8 +10,14 @@ declare module "express-serve-static-core" {
   }
 }
 
+/** Is this user still allowed? Demo users only exist (and only count) in demo mode. */
+export function isAllowed(user: Pick<UserDoc, "email" | "demo">, allowedEmails: string[], demoMode: boolean): boolean {
+  if (user.demo) return demoMode;
+  return allowedEmails.includes(user.email);
+}
+
 /** Only signed-in users get past this. Also enforces the 7-day absolute session limit. */
-export function requireAuth(now: () => number): RequestHandler {
+export function requireAuth(now: () => number, allowedEmails: string[], demoMode: boolean): RequestHandler {
   return async (req: Request, res: Response, next: NextFunction) => {
     const { userId, createdAt } = req.session;
     if (!userId || !createdAt) {
@@ -25,8 +31,11 @@ export function requireAuth(now: () => number): RequestHandler {
       return;
     }
     const user = await User.findById(userId);
-    if (!user) {
+    // The allow list is checked again on every request, so removing an email
+    // from ALLOWED_EMAILS locks that person out at once (not after 7 days).
+    if (!user || !isAllowed(user, allowedEmails, demoMode)) {
       await destroy(req);
+      res.clearCookie(SESSION_COOKIE);
       res.status(401).json({ error: "Please sign in." });
       return;
     }

@@ -22,6 +22,7 @@ import { checkConflicts, planToday, type PlanAction, type PlanInput, type Planne
 import { CalendarAuthError, type CalendarProvider, type NewEvent } from "../calendar/provider.js";
 import { lastDoneByPerson } from "../services/dto.js";
 import { offlineService } from "../ai/talkingPoints.js";
+import { isAllowed } from "../auth/guards.js";
 
 const LOCK_MS = 2 * 60 * 1000;
 const { trusted } = mongoose;
@@ -300,7 +301,9 @@ export async function runForUser(ctx: AppContext, userId: mongoose.Types.ObjectI
 
 /** The hourly tick: run the job for every user, one at a time. One user's error never stops the others. */
 export async function tickAll(ctx: AppContext): Promise<{ users: number; created: number; failed: number }> {
-  const users = await User.find({}, { _id: 1 });
+  const all = await User.find({}, { _id: 1, email: 1, demo: 1 });
+  // Never touch the calendar of someone who is no longer on the allow list.
+  const users = all.filter((u) => isAllowed(u, ctx.env.allowedEmails, ctx.env.demoMode));
   let created = 0;
   let failed = 0;
   for (const u of users) {

@@ -67,6 +67,12 @@ describe("the hourly tick", () => {
     expect(Object.keys(res.body).sort()).toEqual(["created", "failed", "ok", "users"]);
   });
 
+  it("skips anyone who is no longer on the allow list", async () => {
+    ctx.env.allowedEmails.length = 0;
+    clock.now = at("11:00");
+    expect((await tick().expect(200)).body).toMatchObject({ users: 0, created: 0 });
+  });
+
   it("does nothing before the morning run time", async () => {
     clock.now = at("10:59");
     expect((await tick().expect(200)).body.created).toBe(0);
