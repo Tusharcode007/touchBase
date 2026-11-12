@@ -1,0 +1,38 @@
+# Render Blueprint: one free web service.
+# Render → New → Blueprint → pick this repo. Fill in the values marked "sync: false".
+services:
+  - type: web
+    name: touchbase
+    runtime: node
+    plan: free
+    region: singapore
+    # Dev tools (vite, esbuild) are needed to build, so include dev dependencies here.
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+      # Random 256-bit values made by Render. Copy CRON_SECRET into GitHub too (see docs/DEPLOY.md).
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: TOKEN_ENCRYPTION_KEY
+        generateValue: true
+      - key: CRON_SECRET
+        generateValue: true
+      # You fill these in:
+      - key: APP_URL
+        sync: false
+      - key: MONGODB_URI
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: ALLOWED_EMAILS
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false

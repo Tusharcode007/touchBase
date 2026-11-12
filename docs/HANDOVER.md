@@ -2,6 +2,26 @@
 
 Newest entry on top. Read this first, update it last.
 
+## 2026-11-12: Security review and docs (first release)
+Done:
+- Security review (docs/SECURITY-REVIEW.md): 3 findings fixed with tests: allow list re-checked on every request and in the job (S-1), a public URL requires NODE_ENV=production (S-2), tag check before moving/deleting Google events (S-3).
+- Production smoke test with a throwaway MongoDB: CSP + HSTS on `/`, SPA served, demo route absent, Google redirect with S256 PKCE and the 3 narrow scopes, Secure cookie only behind HTTPS.
+- README with screenshots, DEPLOY, TESTING, ROLLBACK, DEFENSE brief, render.yaml.
+- 108 server + 13 web tests pass.
+
+In progress:
+- Nothing.
+
+Broken or risky:
+- Not yet tried with a real Google account (ASSUMPTIONS A1, A2, A6, A7). Do this right after deploying.
+
+Next:
+- Owner: follow docs/DEPLOY.md, then the real-Google check in TESTING.md §4.
+- Rewrite docs/defense/DEFENSE-touchbase.md in your own words and practise the drill.
+
+Do not touch:
+- The hard rules and their tests (CONSTRAINTS.md).
+
 ## 2026-11-12: Dashboard
 Done:
 - React dashboard: Login, Today, People, Haven't called, History, Settings. Light/dark theme, phone-first layout.

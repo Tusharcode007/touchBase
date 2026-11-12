@@ -6,6 +6,7 @@ Read them in this order if you are new:
 | File | What it answers |
 |---|---|
 | [HANDOVER.md](HANDOVER.md) | Where things stand right now. Read first. |
+| [DEPLOY.md](DEPLOY.md) | Step-by-step setup: Atlas, Google Cloud, Render, GitHub Actions. |
 | [CONSTRAINTS.md](CONSTRAINTS.md) | The rules that must never be broken. |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | The big picture: parts of the system and how data moves. |
 | [FLOW.md](FLOW.md) | Step by step: what calls what, in what order. |
@@ -13,6 +14,7 @@ Read them in this order if you are new:
 | [DECISIONS.md](DECISIONS.md) | What we chose and why. |
 | [ALTERNATIVES.md](ALTERNATIVES.md) | What we said no to, and when we would change our mind. |
 | [THREAT.md](THREAT.md) | Who could abuse it, and what stops them. |
+| [SECURITY-REVIEW.md](SECURITY-REVIEW.md) | What the last security review found and fixed. |
 | [FAILURE.md](FAILURE.md) | Where it breaks, and how we notice. |
 | [TESTING.md](TESTING.md) | Exact commands to check that it works. |
 | [ROLLBACK.md](ROLLBACK.md) | How to undo a bad change. |

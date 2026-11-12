@@ -14,6 +14,7 @@ Things we believe but have not fully proven. Clear the "unverified" list before 
 | A8 | All-day events in Google are "free" by default, so holidays don't block the day, but an all-day "Trip" marked busy does. | Logic verified in tests. Google's default is unverified. | Create both kinds and run the plan. |
 | A9 | GitHub's hourly schedule is late by minutes, not hours. | Assumed from experience | Watch the Actions tab for a week. |
 | A10 | "Every morning around 11 or 12" means the plan runs once after the chosen morning time (default 11:00). | Interpretation of the request | Change it in Settings if needed. |
+| A11 | Dependabot's first npm run failed because typescript-eslint doesn't support TypeScript 7. | **Verified**: with the ignore rule, the next npm run succeeded. | — |
 
 ## Open questions
 - Should a call deleted by mistake be easy to bring back the same day? (Today: no, see D-005.)
