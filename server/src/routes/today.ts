@@ -57,6 +57,7 @@ export function todayRoutes(ctx: AppContext): Router {
         pausedUntil: settings.pausedUntil,
         activeFrom: settings.activeFrom,
         activeTo: settings.activeTo,
+        timezone: settings.timezone,
       },
     };
     res.json(body);

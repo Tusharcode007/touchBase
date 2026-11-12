@@ -64,7 +64,12 @@ export interface TodayResponse {
   ranToday: boolean;
   runTime: string;
   calls: TodayCallDTO[];
-  settings: Pick<Settings, "paused" | "pausedUntil" | "activeFrom" | "activeTo">;
+  settings: Pick<Settings, "paused" | "pausedUntil" | "activeFrom" | "activeTo" | "timezone">;
+}
+
+export interface HealthResponse {
+  ok: boolean;
+  demo: boolean;
 }
 
 export interface CalendarInfo {

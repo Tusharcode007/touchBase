@@ -91,7 +91,8 @@ export function createApp(ctx: AppContext, extra: ExtraRoutes = {}) {
   app.use(express.json({ limit: "20kb" }));
 
   app.get("/api/health", (_req, res) => {
-    res.json({ ok: true });
+    // "demo" lets the login screen show the demo button. It reveals nothing else.
+    res.json({ ok: true, demo: env.demoMode });
   });
 
   if (extra.internal) app.use("/api/internal", limiter(60, 60), extra.internal);

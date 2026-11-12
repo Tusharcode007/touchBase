@@ -5,8 +5,10 @@ import { spawn } from "node:child_process";
 const isWindows = process.platform === "win32";
 const npm = isWindows ? "npm.cmd" : "npm";
 
+// The React dev server (5173) forwards /api to port 3000, so the API must use 3000
+// here even if PORT is set in the environment (some tools set PORT for the web port).
 const children = [
-  spawn(npm, ["run", "dev", "-w", "server"], { stdio: "inherit" }),
+  spawn(npm, ["run", "dev", "-w", "server"], { stdio: "inherit", env: { ...process.env, PORT: "3000" } }),
   spawn(npm, ["run", "dev", "-w", "web"], { stdio: "inherit" }),
 ];
 

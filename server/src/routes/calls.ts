@@ -23,6 +23,10 @@ export function callRoutes(ctx: AppContext): Router {
     const call = await Call.findOne({ _id: parseId(req.params.id), userId: res.locals.user._id });
     if (!call) throw notFound();
     if (update.status) {
+      // Skipping a call that hasn't started yet also takes it out of the calendar.
+      if (update.status === "skipped" && call.status === "scheduled" && call.start.getTime() > ctx.now() && call.eventId) {
+        await ctx.calendarFor(res.locals.user).deleteEvent(call.calendarId, call.eventId);
+      }
       call.status = update.status;
       call.settledAt = new Date(ctx.now());
     }

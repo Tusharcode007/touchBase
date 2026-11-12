@@ -139,6 +139,17 @@ describe("respecting what I did in my calendar", () => {
     expect(cal.events.size).toBe(0);
   });
 
+  it("skipping an upcoming call in the dashboard also removes it from the calendar", async () => {
+    clock.now = at("11:00");
+    await tick();
+    const call = (await agent.get("/api/today").expect(200)).body.calls[0];
+    await agent.patch(`/api/calls/${call.id}`).set("X-CSRF-Token", csrf).send({ status: "skipped" }).expect(200);
+    expect((await calendar()).events.size).toBe(0);
+    clock.now = at("12:00");
+    await tick();
+    expect((await calendar()).events.size).toBe(0); // and nothing new is added
+  });
+
   it("moves the call when a new meeting lands on it", async () => {
     clock.now = at("11:00");
     await tick();

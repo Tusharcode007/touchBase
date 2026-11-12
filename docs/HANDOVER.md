@@ -2,6 +2,25 @@
 
 Newest entry on top. Read this first, update it last.
 
+## 2026-11-12: Dashboard
+Done:
+- React dashboard: Login, Today, People, Haven't called, History, Settings. Light/dark theme, phone-first layout.
+- 13 screen tests + 105 server tests pass. Checked by hand in a browser (desktop and phone sizes).
+- Skipping an upcoming call in the dashboard also removes it from the calendar (with a test).
+- BUG-001 (dev API port) and BUG-002 (phone overflow) fixed and written up.
+
+In progress:
+- Nothing.
+
+Broken or risky:
+- Still not tried with a real Google account (ASSUMPTIONS A1, A2).
+
+Next:
+- README with screenshots, TESTING.md, ROLLBACK.md, the DEFENSE brief, then the final security review.
+
+Do not touch:
+- `web/src/api.ts` CSRF header logic.
+
 ## 2026-11-12: Calendar sync and the daily job
 Done:
 - Calendar provider interface with a real Google version and a fake one (demo + tests).
